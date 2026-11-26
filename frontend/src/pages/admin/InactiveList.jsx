@@ -55,7 +55,7 @@ const InactiveList = () => {
   if (loading) return <p className="text-xs text-gray-500 py-3">Loading inactive businesses...</p>;
 
   return (
-    <div className="p-4 sm:p-6 mb-8  h-screen overflow-y-scroll">
+    <div className="min-h-full p-4 pb-8 sm:p-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-6">
         <h3 className="text-base sm:text-lg font-serif font-bold text-[#1A2E26] flex items-center gap-2">
           Inactive List

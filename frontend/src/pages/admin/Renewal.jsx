@@ -37,7 +37,7 @@ const Renewal = () => {
   }
 
   return (
-    <div className="p-4 sm:p-6 h-screen overflow-y-scroll">
+    <div className="min-h-full p-4 sm:p-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
         <h2 className="text-sm sm:text-base md:text-lg font-bold text-gray-800 uppercase tracking-wider">
           {subTab === 'expired' ? 'Expired Listings' : 'Upcoming Renewals'}

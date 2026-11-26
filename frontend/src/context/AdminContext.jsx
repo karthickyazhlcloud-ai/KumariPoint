@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useRef, useEffect } from 'react';
 import { business } from "../constant/product.js"
 import { adminFetch, setAdminToken } from '../utils/adminFetch';
+import { mergeBusinessCategories } from '../utils/businessCategories';
 
 const AdminContext = createContext();
 
@@ -9,15 +10,16 @@ export const AdminProvider = ({ children }) => {
 
   const API_URL = import.meta.env.VITE_API_URL;
   const [adminToken, setAdminTokenState] = useState(() => {
-    localStorage.removeItem('admin_api_token');
-    return '';
+    const savedToken = sessionStorage.getItem('admin_api_token') || '';
+    setAdminToken(savedToken);
+    return savedToken;
   });
   const [passwordInput, setPasswordInput] = useState('');
   const [loginError, setLoginError] = useState('');
 
   const [category, setCategory] = useState(() => {
     const saved = localStorage.getItem('admin_categories');
-    return saved ? JSON.parse(saved) : [];
+    return mergeBusinessCategories(saved ? JSON.parse(saved) : []);
   });
 
   const [locationsList, setLocationsList] = useState(() => {
@@ -59,8 +61,9 @@ export const AdminProvider = ({ children }) => {
       const catRes = await fetch(`${API_URL}/api/categories`);
       const catData = await catRes.json();
       if (!catRes.ok) throw new Error(catData.error || 'Could not load business categories.');
-      setCategory(catData);
-      localStorage.setItem('admin_categories', JSON.stringify(catData));
+      const mergedCategories = mergeBusinessCategories(catData);
+      setCategory(mergedCategories);
+      localStorage.setItem('admin_categories', JSON.stringify(mergedCategories));
       setLoadPercentage(80);
 
 

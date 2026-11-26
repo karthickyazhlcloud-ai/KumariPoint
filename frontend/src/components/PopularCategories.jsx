@@ -47,103 +47,69 @@ export const categoryIcons = {
 
 const categorySlug = (name) => name.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
 
-const PopularCategories = ({ category, selectedCategory }) => {
+const PopularCategories = ({ category = [] }) => {
   const scrollRef = useRef(null);
 
   useEffect(() => {
-    const scrollContainer = scrollRef.current;
-    if (!scrollContainer) return;
+    const container = scrollRef.current;
+    if (!container) return;
 
     let intervalId;
-
     const startAutoScroll = () => {
+      clearInterval(intervalId);
       intervalId = setInterval(() => {
-        if (scrollContainer) {
-          if (scrollContainer.scrollLeft + scrollContainer.clientWidth >= scrollContainer.scrollWidth - 10) {
-            scrollContainer.scrollTo({ left: 0, behavior: 'smooth' });
-          } else {
-            scrollContainer.scrollBy({ left: 200, behavior: 'smooth' });
-          }
+        if (container.scrollLeft + container.clientWidth >= container.scrollWidth - 10) {
+          container.scrollTo({ left: 0, behavior: 'smooth' });
+        } else {
+          container.scrollBy({ left: 200, behavior: 'smooth' });
         }
       }, 1000);
     };
-
-    startAutoScroll();
-
     const stopAutoScroll = () => clearInterval(intervalId);
 
-    scrollContainer.addEventListener('mouseenter', stopAutoScroll);
-    scrollContainer.addEventListener('mouseleave', startAutoScroll);
-
+    startAutoScroll();
+    container.addEventListener('mouseenter', stopAutoScroll);
+    container.addEventListener('mouseleave', startAutoScroll);
     return () => {
       stopAutoScroll();
-      if (scrollContainer) {
-        scrollContainer.removeEventListener('mouseenter', stopAutoScroll);
-        scrollContainer.removeEventListener('mouseleave', startAutoScroll);
-      }
+      container.removeEventListener('mouseenter', stopAutoScroll);
+      container.removeEventListener('mouseleave', startAutoScroll);
     };
   }, []);
 
   const scroll = (direction) => {
-    if (scrollRef.current) {
-      const { scrollLeft, clientWidth } = scrollRef.current;
-      const scrollAmount = clientWidth * 0.75;
-      scrollRef.current.scrollTo({
-        left: direction === 'left' ? scrollLeft - scrollAmount : scrollLeft + scrollAmount,
-        behavior: 'smooth'
-      });
-    }
+    if (!scrollRef.current) return;
+    const { scrollLeft, clientWidth } = scrollRef.current;
+    scrollRef.current.scrollTo({
+      left: direction === 'left' ? scrollLeft - clientWidth * 0.75 : scrollLeft + clientWidth * 0.75,
+      behavior: 'smooth',
+    });
   };
 
   return (
-
-    <section className="mt-6 px-4 sm:px-[5%] w-full">
-      <div className="flex justify-between items-center mb-4">
-        <p className="text-[#1C1813] text-2xl sm:text-3xl font-serif font-bold">Popular Categories</p>
-
+    <section className="mt-6 w-full px-4 sm:px-[5%]">
+      <div className="mb-4 flex items-center justify-between">
+        <h2 className="text-2xl font-serif font-bold text-[#1C1813] sm:text-3xl">Popular Categories</h2>
         <div className="flex gap-2">
-          <button
-            onClick={() => scroll('left')}
-            className="p-2 rounded-full bg-amber-100 hover:bg-amber-200 text-amber-900 transition shadow-sm cursor-pointer"
-            aria-label="Previous"
-          >
-            <ChevronLeft className="w-5 h-5" />
+          <button onClick={() => scroll('left')} className="cursor-pointer rounded-full bg-amber-100 p-2 text-amber-900 shadow-sm transition hover:bg-amber-200" aria-label="Previous categories">
+            <ChevronLeft className="h-5 w-5" />
           </button>
-          <button
-            onClick={() => scroll('right')}
-            className="p-2 rounded-full bg-amber-100 hover:bg-amber-200 text-amber-900 transition shadow-sm cursor-pointer"
-            aria-label="Next"
-          >
-            <ChevronRight className="w-5 h-5" />
+          <button onClick={() => scroll('right')} className="cursor-pointer rounded-full bg-amber-100 p-2 text-amber-900 shadow-sm transition hover:bg-amber-200" aria-label="Next categories">
+            <ChevronRight className="h-5 w-5" />
           </button>
         </div>
       </div>
-
-      <div
-        ref={scrollRef}
-        className="flex gap-4 px-1 pt-2 pb-4 overflow-x-auto overflow-y-hidden snap-x snap-mandatory scroll-smooth scrollbar-none [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
-      >
-        {category && category.map((item, i) => (
+      <div ref={scrollRef} className="flex snap-x snap-mandatory gap-4 overflow-x-auto overflow-y-hidden px-1 pt-2 pb-4 scroll-smooth scrollbar-none [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+        {category.map((item) => (
           <Link
-          key={i}
-          to={`/${categorySlug(item.name)}`}
-          className="snap-start shrink-0 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-700 focus-visible:ring-offset-2"
+            key={item.name}
+            to={`/${categorySlug(item.name)}`}
+            className="shrink-0 snap-start rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-700 focus-visible:ring-offset-2"
           >
-          <div
-            key={i}
-            className="h-full bg-white rounded-xl w-28 sm:w-30 p-3 py-5 shadow-md flex flex-col justify-center text-center gap-2 items-center border-2 border-transparent cursor-pointer transition-all duration-200 hover:-translate-y-1 hover:scale-105 hover:border-[#D4AF37] active:-translate-y-1 active:scale-105 active:border-[#D4AF37]"
-          >
-            <img src={item.img || categoryIcons[item.name]} className="w-8 h-8 object-cover object-center bg-white p-1 rounded-full shadow" alt={item.name} />
-            <h3 className="text-xs  font-bold w-full text-black">{item.name}</h3>
-            {/* <Link
-              to={`/category/${item.name}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="bg-white text-gray-800 px-3 py-1 rounded-full text-[11px] font-bold shadow hover:bg-gray-100 transition-colors cursor-pointer"
-            >
-              Explore
-            </Link> */}
-          </div>
+            <div className="flex h-full w-28 cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-transparent bg-white px-3 py-5 text-center shadow-md transition-all duration-200 hover:-translate-y-1 hover:scale-105 hover:border-[#D4AF37] active:-translate-y-1 active:scale-105 active:border-[#D4AF37] sm:w-32">
+              <img src={item.img || categoryIcons[item.name] || store} className="h-8 w-8 rounded-full bg-white object-cover object-center p-1 shadow" alt={item.name} loading="lazy" />
+              <h3 className="w-full text-xs font-bold text-black">{item.name}</h3>
+            </div>
           </Link>
         ))}
       </div>

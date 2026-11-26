@@ -10,7 +10,7 @@ import Dashboard from './pages/admin/Dashboard'
 import InactiveList from './pages/admin/InactiveList'
 import PendingSubmissions from './pages/admin/PendingSubmissions'
 import RecentBusinesses from './pages/admin/RecentBusinesses'
-import PremiumList from './pages/admin/PremiumList'
+import AdvertisementList from './pages/admin/AdvertisementList'
 import Renewal from './pages/admin/Renewal'
 import Other from './pages/admin/Other'
 import BillingSettings from './pages/admin/BillingSettings'
@@ -40,7 +40,7 @@ const App = () => {
   <Route path="inactive-list" element={<InactiveList />} />
   <Route path="pending-submission" element={<PendingSubmissions />} />
   <Route path="recent-businesses" element={<RecentBusinesses />} />
-  <Route path="advertisement-list" element={<PremiumList />} />
+  <Route path="advertisement-list" element={<AdvertisementList />} />
   <Route path="renewal-list" element={<Renewal />} />
   <Route path="other" element={<Other />} />
   <Route path="billing-settings" element={<BillingSettings />} />

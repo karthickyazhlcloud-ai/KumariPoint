@@ -7,17 +7,17 @@ const BusinessSEO = ({ business }) => {
   if (!business) return null;
 
   const path = `/${slug(business.category)}/${slug(business.location)}/${slug(business.businessName)}`;
-  const title = `${business.businessName} | ${business.category} in ${business.location} | KumariHUB`;
-  const description = `${business.businessName} is a ${business.category} in ${business.location}, Kanyakumari. View contact details, address, services, opening times and customer reviews on KumariHUB.`;
+  const title = `${business.businessName} | ${business.category} in ${business.location} | KumariPoint`;
+  const description = `${business.businessName} is a ${business.category} in ${business.location}, Kanyakumari. View contact details, address, services, opening times and customer reviews on KumariPoint.`;
   const image = /^https?:\/\//i.test(String(business.img || '')) ? business.img : undefined;
   const schema = {
     '@context': 'https://schema.org',
     '@type': 'LocalBusiness',
-    '@id': `https://kumarihub-8592a.web.app${path}#business`,
+    '@id': `https://KumariPoint-8592a.web.app${path}#business`,
     name: business.businessName,
     description: business.aboutBusness || description,
     image: image ? [image] : undefined,
-    url: `https://kumarihub-8592a.web.app${path}`,
+    url: `https://KumariPoint-8592a.web.app${path}`,
     telephone: business.phone || undefined,
     address: {
       '@type': 'PostalAddress',

@@ -3,4 +3,4 @@ Allow: /
 Disallow: /admin-dashboard
 Disallow: /admin-dashBoard
 
-Sitemap: https://kumarihub-8592a.web.app/sitemap.xml
+Sitemap: https://KumariPoint-8592a.web.app/sitemap.xml

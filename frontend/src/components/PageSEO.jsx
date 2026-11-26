@@ -1,11 +1,11 @@
 import { Helmet } from 'react-helmet-async';
 import fallbackBusinessImage from '../assets/avif/kanyakumari-featured-local-business.avif';
 
-const SITE_NAME = 'KumariHUB';
-const DEFAULT_IMAGE = `https://kumarihub-8592a.web.app/${fallbackBusinessImage.replace(/^\//, '')}`;
+const SITE_NAME = 'KumariPoint';
+const DEFAULT_IMAGE = `https://KumariPoint-8592a.web.app/${fallbackBusinessImage.replace(/^\//, '')}`;
 
 const PageSEO = ({ title, description, path, image = DEFAULT_IMAGE, noIndex = false, schema }) => {
-  const canonicalUrl = `https://kumarihub-8592a.web.app${path}`;
+  const canonicalUrl = `https://KumariPoint-8592a.web.app${path}`;
   const safeDescription = String(description || '').slice(0, 160);
 
   return (

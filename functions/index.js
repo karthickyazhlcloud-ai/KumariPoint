@@ -18,7 +18,7 @@ exports.shareMetadata = onRequest({ region: 'asia-south1' }, async (req, res) =>
     html = await shellResponse.text();
   } catch (error) {
     console.error('Could not load the app shell for share route:', error);
-    return res.status(502).send('KumariHUB is temporarily unavailable.');
+    return res.status(502).send('KumariPoint is temporarily unavailable.');
   }
 
   try {
@@ -30,7 +30,7 @@ exports.shareMetadata = onRequest({ region: 'asia-south1' }, async (req, res) =>
       if (businessResponse.ok) {
         const { business } = await businessResponse.json();
         if (business) {
-          const title = `${business.businessName} | KumariHUB`;
+          const title = `${business.businessName} | KumariPoint`;
           const description = `${business.category} in ${business.location}`;
           const image = business.img || `${origin}/og-cover.jpg`;
           const canonical = `${origin}${req.path}`;
@@ -39,7 +39,7 @@ exports.shareMetadata = onRequest({ region: 'asia-south1' }, async (req, res) =>
       <meta name="description" content="${escapeHtml(description)}" />
       <link rel="canonical" href="${escapeHtml(canonical)}" />
       <meta property="og:type" content="website" />
-      <meta property="og:site_name" content="KumariHUB" />
+      <meta property="og:site_name" content="KumariPoint" />
       <meta property="og:url" content="${escapeHtml(canonical)}" />
       <meta property="og:title" content="${escapeHtml(title)}" />
       <meta property="og:description" content="${escapeHtml(description)}" />

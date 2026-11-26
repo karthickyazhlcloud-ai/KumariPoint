@@ -1,135 +1,191 @@
-import { BarChart3, Building2, DiamondPlus, FolderPlus, LayoutDashboard, MapPin, MapPinPlus, Megaphone, PlusCircle, ReceiptText, Shapes, Wallet } from 'lucide-react';
-import React, { useState } from 'react'
-import { useNavigate } from 'react-router-dom';
+import {
+  BarChart3,
+  Building2,
+  ChevronRight,
+  DiamondPlus,
+  FolderPlus,
+  LayoutDashboard,
+  MapPin,
+  MapPinPlus,
+  Megaphone,
+  Menu,
+  PlusCircle,
+  ReceiptText,
+  Shapes,
+  Wallet,
+  X,
+} from 'lucide-react';
+import React, { useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+
+const navigation = [
+  { label: 'Dashboard', icon: LayoutDashboard, path: '/admin-dashboard' },
+  { label: 'Inactive businesses', icon: Building2, path: '/admin-dashboard/inactive-list' },
+  { label: 'Pending submissions', icon: Wallet, path: '/admin-dashboard/pending-submission' },
+  { label: 'Recent businesses', icon: BarChart3, path: '/admin-dashboard/recent-businesses' },
+  { label: 'Advertisements', icon: Megaphone, path: '/admin-dashboard/advertisement-list' },
+  { label: 'Renewals', icon: DiamondPlus, path: '/admin-dashboard/renewal-list' },
+  { label: 'Top categories', icon: Shapes, path: '/admin-dashboard/other?view=categories' },
+  { label: 'Top locations', icon: MapPin, path: '/admin-dashboard/other?view=locations' },
+  { label: 'Billing & invoices', icon: ReceiptText, path: '/admin-dashboard/billing-settings' },
+];
 
 const AdminSlideBar = ({ setModalType, setIsModalOpen }) => {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState("")
+  const { pathname, search } = useLocation();
+  const [menuOpen, setMenuOpen] = useState(false);
+  const query = new URLSearchParams(search);
+
+  const isActive = (item) => {
+    if (item.path === '/admin-dashboard') return pathname === item.path;
+    if (item.path.startsWith('/admin-dashboard/other')) {
+      return pathname === '/admin-dashboard/other' && query.get('view') === item.path.split('=')[1];
+    }
+    return pathname === item.path || pathname.startsWith(`${item.path}/`);
+  };
+
+  const goTo = (path) => {
+    navigate(path);
+    setMenuOpen(false);
+  };
+
+  const openModal = (type) => {
+    setMenuOpen(false);
+    setModalType?.(type);
+    setIsModalOpen?.(true);
+  };
+
+  const renderLinks = (mobile = false) => navigation.map((item) => {
+    const Icon = item.icon;
+    const active = isActive(item);
+    return (
+      <button
+        key={item.label}
+        type="button"
+        onClick={() => goTo(item.path)}
+        aria-current={active ? 'page' : undefined}
+        className={`group flex w-full items-center gap-3 rounded-xl text-left text-sm font-medium transition-colors ${
+          mobile ? 'px-4 py-3.5' : 'px-3.5 py-3'
+        } ${active ? 'bg-white/10 text-white' : 'text-[#A3C1AD] hover:bg-white/5 hover:text-white'}`}
+      >
+        <Icon className="h-[18px] w-[18px] shrink-0 text-[#D4AF37]" aria-hidden="true" />
+        <span className="min-w-0 flex-1 truncate">{item.label}</span>
+        {mobile && <ChevronRight className="h-4 w-4 text-white/35" aria-hidden="true" />}
+      </button>
+    );
+  });
+
+  const quickActions = (
+    <div className="space-y-2">
+      <div className="grid grid-cols-1 justify-items-center gap-2">
+        <button
+          type="button"
+          onClick={() => openModal('business')}
+          className="flex min-h-9 w-full max-w-[190px] items-center justify-center gap-1.5 rounded-lg bg-[#D4AF37] px-2.5 py-1.5 text-[11px] font-bold text-[#1A2E26] transition-colors hover:bg-[#c29d30]"
+        >
+          <PlusCircle className="h-3.5 w-3.5" aria-hidden="true" /> List Business
+        </button>
+        <button
+          type="button"
+          onClick={() => goTo('/admin-dashboard/advertisement-list?add=true')}
+          className="flex min-h-9 w-full max-w-[190px] items-center justify-center gap-1.5 rounded-lg bg-[#D4AF37] px-2.5 py-1.5 text-[11px] font-bold text-[#1A2E26] transition-colors hover:bg-[#c29d30]"
+        >
+          <Megaphone className="h-3.5 w-3.5" aria-hidden="true" /> Add Advertisement
+        </button>
+      </div>
+      <div className="grid grid-cols-2 gap-2">
+        <button
+          type="button"
+          onClick={() => openModal('category')}
+          className="flex min-h-8 items-center justify-center gap-1 rounded-lg bg-white/5 px-2 py-1 text-[11px] font-semibold text-white transition-colors hover:bg-white/10"
+        >
+          <FolderPlus className="h-3.5 w-3.5 text-[#D4AF37]" aria-hidden="true" /> Category
+        </button>
+        <button
+          type="button"
+          onClick={() => openModal('location')}
+          className="flex min-h-8 items-center justify-center gap-1 rounded-lg bg-white/5 px-2 py-1 text-[11px] font-semibold text-white transition-colors hover:bg-white/10"
+        >
+          <MapPinPlus className="h-3.5 w-3.5 text-[#D4AF37]" aria-hidden="true" /> Location
+        </button>
+      </div>
+    </div>
+  );
 
   return (
-    <aside className="h-full bg-[#1A2E26] text-[#A3C1AD] flex flex-col justify-between p-3 md:p-6 shadow-xl">
-      <div>
-
-        <div className="hidden md:flex items-center gap-4 mb-8 pb-6 border-b border-[#2A473C]">
-          <div className="w-12 h-12 rounded-full bg-[#D4AF37] flex items-center justify-center font-bold text-[#1A2E26] text-lg shadow-md shrink-0">
-            AJ
-          </div>
-          <div className="overflow-hidden">
-            <h2 className="text-white font-serif font-bold text-base tracking-wide truncate">ALEX JOHNSON</h2>
-            <p className="text-xs text-[#8FA89B] truncate">alex.johnson@gmail.com</p>
+    <>
+      <header className="sticky top-0 z-40 flex h-16 shrink-0 items-center justify-between border-b border-[#2A473C] bg-[#1A2E26] px-4 text-white shadow-sm md:hidden">
+        <div className="flex min-w-0 items-center gap-3">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#D4AF37] text-sm font-extrabold text-[#1A2E26]">KP</div>
+          <div className="min-w-0">
+            <p className="truncate text-sm font-semibold leading-5">Kumari Point</p>
+            <p className="text-[10px] font-medium uppercase tracking-[0.14em] text-[#A3C1AD]">Admin console</p>
           </div>
         </div>
-
-        <nav className="flex md:flex-col gap-2 overflow-x-scroll md:overflow-x-visible pb-2 md:pb-0 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] scrollbar-none">
-
-          <button
-            onClick={() => { navigate("/admin-dashboard"), setActiveTab("dashboard") }}
-            className={`flex items-center gap-2 md:gap-3.5 px-3.5 md:px-4 py-2.5 md:py-3 rounded-xl text-xs font-semibold transition-all cursor-pointer shrink-0 ${activeTab === 'dashboard' ? "bg-white/10 text-white shadow-xs" : "hover:bg-white/5 hover:text-white"
-              }`}
-          >
-            <LayoutDashboard className="w-4 h-4 text-[#D4AF37] shrink-0" />
-            <span>Dashboard</span>
-          </button>
-
-          <button
-            onClick={() => { navigate("/admin-dashboard/inactive-list"), setActiveTab("inactive") }}
-            className={`flex items-center gap-2 md:gap-3.5 px-3.5 md:px-4 py-2.5 md:py-3 rounded-xl text-xs font-semibold transition-all cursor-pointer shrink-0 ${activeTab === 'inactive' ? "bg-white/10 text-white shadow-xs" : "hover:bg-white/5 hover:text-white"
-              }`}
-          >
-            <Building2 className="w-4 h-4 text-[#D4AF37] shrink-0" />
-            <span>Inactive List</span>
-          </button>
-
-          <button
-            onClick={() => { navigate("/admin-dashboard/pending-submission"), setActiveTab("pending") }}
-            className={`flex items-center gap-2 md:gap-3.5 px-3.5 md:px-4 py-2.5 md:py-3 rounded-xl text-xs font-semibold transition-all cursor-pointer shrink-0 ${activeTab === 'pending' ? "bg-white/10 text-white shadow-xs" : "hover:bg-white/5 hover:text-white"
-              }`}
-          >
-            <Wallet className="w-4 h-4 text-[#D4AF37] shrink-0" />
-            <span>Pending Submissions</span>
-          </button>
-
-          <button
-            onClick={() => { navigate("/admin-dashboard/recent-businesses"), setActiveTab("recent") }}
-            className={`flex items-center gap-2 md:gap-3.5 px-3.5 md:px-4 py-2.5 md:py-3 rounded-xl text-xs font-semibold transition-all cursor-pointer shrink-0 ${activeTab === 'recent' ? "bg-white/10 text-white shadow-xs" : "hover:bg-white/5 hover:text-white"
-              }`}
-          >
-            <BarChart3 className="w-4 h-4 text-[#D4AF37] shrink-0" />
-            <span>Recent Businesses</span>
-          </button>
-
-          <button
-            onClick={() => { navigate("/admin-dashboard/advertisement-list"); setActiveTab("advertisements"); }}
-            className={`flex items-center gap-2 md:gap-3.5 px-3.5 md:px-4 py-2.5 md:py-3 rounded-xl text-xs font-semibold transition-all cursor-pointer shrink-0 ${activeTab === 'advertisements' ? "bg-white/10 text-white shadow-xs" : "hover:bg-white/5 hover:text-white"
-              }`}
-          >
-            <Megaphone className="w-4 h-4 text-[#D4AF37] shrink-0" />
-            <span>Advertisement List</span>
-          </button>
-
-          <button
-            onClick={() => { navigate("/admin-dashboard/renewal-list"), setActiveTab("renewal") }}
-            className={`flex items-center gap-2 md:gap-3.5 px-3.5 md:px-4 py-2.5 md:py-3 rounded-xl text-xs font-semibold transition-all cursor-pointer shrink-0 ${activeTab === 'renewal' ? "bg-white/10 text-white shadow-xs" : "hover:bg-white/5 hover:text-white"
-              }`}
-          >
-            <DiamondPlus className="w-4 h-4 text-[#D4AF37] shrink-0" />
-            <span>Renewal List</span>
-          </button>
-
-          <button
-            onClick={() => { navigate("/admin-dashboard/other?view=categories"); setActiveTab("categories"); }}
-            className={`flex items-center gap-2 md:gap-3.5 px-3.5 md:px-4 py-2.5 md:py-3 rounded-xl text-xs font-semibold transition-all cursor-pointer shrink-0 ${activeTab === 'categories' ? "bg-white/10 text-white shadow-xs" : "hover:bg-white/5 hover:text-white"
-              }`}
-          >
-            <Shapes aria-hidden="true" className="w-5 h-5 text-[#D4AF37] shrink-0" />
-            <span>Top Categories</span>
-          </button>
-
-          <button
-            onClick={() => { navigate("/admin-dashboard/other?view=locations"); setActiveTab("locations"); }}
-            className={`flex items-center gap-2 md:gap-3.5 px-3.5 md:px-4 py-2.5 md:py-3 rounded-xl text-xs font-semibold transition-all cursor-pointer shrink-0 ${activeTab === 'locations' ? "bg-white/10 text-white shadow-xs" : "hover:bg-white/5 hover:text-white"
-              }`}
-          >
-            <MapPin className="w-4 h-4 text-[#D4AF37] shrink-0" />
-            <span>Top Locations</span>
-          </button>
-
-          <button
-            onClick={() => { navigate("/admin-dashboard/billing-settings"); setActiveTab("billing"); }}
-            className={`flex items-center gap-2 md:gap-3.5 px-3.5 md:px-4 py-2.5 md:py-3 rounded-xl text-xs font-semibold transition-all cursor-pointer shrink-0 ${activeTab === 'billing' ? "bg-white/10 text-white shadow-xs" : "hover:bg-white/5 hover:text-white"}`}
-          >
-            <ReceiptText className="w-4 h-4 text-[#D4AF37] shrink-0" />
-            <span>Billing & Invoice</span>
-          </button>
-
-        </nav>
-      </div>
-
-
-      <div className="hidden md:block space-y-2 pt-4 border-t border-[#2A473C] mt-4">
         <button
-          onClick={() => { setModalType?.('business'); setIsModalOpen?.(true); }}
-          className="w-full bg-[#D4AF37] text-[#1A2E26] px-4 py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-2 hover:bg-[#c29d30] transition-colors cursor-pointer shadow-md"
+          type="button"
+          onClick={() => setMenuOpen(true)}
+          aria-label="Open admin navigation"
+          aria-expanded={menuOpen}
+          className="flex h-10 w-10 items-center justify-center rounded-xl text-[#E6EEE8] transition-colors hover:bg-white/10"
         >
-          <PlusCircle className="w-4 h-4" /> Add Business
+          <Menu className="h-5 w-5" aria-hidden="true" />
         </button>
-        <div className="grid grid-cols-2 gap-2">
-          <button
-            onClick={() => { setModalType?.('category'); setIsModalOpen?.(true); }}
-            className="bg-[#2A473C] text-white px-3 py-2 rounded-xl text-[11px] font-semibold flex items-center justify-center gap-1 hover:bg-[#335649] transition-colors cursor-pointer"
+      </header>
+
+      {menuOpen && (
+        <div
+          className="fixed inset-0 z-[60] bg-black/45 backdrop-blur-[2px] md:hidden"
+          onClick={() => setMenuOpen(false)}
+        >
+          <aside
+            aria-label="Admin navigation"
+            className="flex h-full w-[min(88vw,22rem)] flex-col bg-[#1A2E26] p-4 text-[#A3C1AD] shadow-2xl"
+            onClick={(event) => event.stopPropagation()}
           >
-            <FolderPlus className="w-3.5 h-3.5 text-[#D4AF37]" /> Category
-          </button>
-          <button
-            onClick={() => { setModalType?.('location'); setIsModalOpen?.(true); }}
-            className="bg-[#2A473C] text-white px-3 py-2 rounded-xl text-[11px] font-semibold flex items-center justify-center gap-1 hover:bg-[#335649] transition-colors cursor-pointer"
-          >
-            <MapPinPlus className="w-3.5 h-3.5 text-[#D4AF37]" /> Location
-          </button>
+            <div className="mb-4 flex items-center justify-between border-b border-[#2A473C] pb-4">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#D4AF37] text-sm font-extrabold text-[#1A2E26]">KP</div>
+                <div>
+                  <p className="text-sm font-semibold text-white">Kumari Point</p>
+                  <p className="text-[10px] uppercase tracking-[0.14em] text-[#A3C1AD]">Admin console</p>
+                </div>
+              </div>
+              <button type="button" onClick={() => setMenuOpen(false)} aria-label="Close admin navigation" className="flex h-10 w-10 items-center justify-center rounded-xl text-[#A3C1AD] hover:bg-white/10 hover:text-white">
+                <X className="h-5 w-5" aria-hidden="true" />
+              </button>
+            </div>
+            <nav className="min-h-0 flex-1 space-y-1 overflow-y-auto" aria-label="Admin pages">
+              {renderLinks(true)}
+            </nav>
+            <div className="mt-4 border-t border-[#2A473C] pt-4">
+              <p className="mb-3 px-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-[#A3C1AD]/70">Quick actions</p>
+              {quickActions}
+            </div>
+          </aside>
         </div>
-      </div>
-    </aside>
-  )
-}
+      )}
+
+      <aside className="hidden h-full w-full flex-col justify-between bg-[#1A2E26] p-5 text-[#A3C1AD] shadow-xl md:flex">
+        <div className="min-h-0">
+          <div className="mb-6 flex items-center gap-3 border-b border-[#2A473C] pb-5">
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#D4AF37] text-sm font-extrabold text-[#1A2E26]">KP</div>
+            <div className="min-w-0">
+              <p className="truncate font-serif text-base font-bold tracking-wide text-white">Kumari Point</p>
+              <p className="text-[10px] uppercase tracking-[0.14em] text-[#A3C1AD]">Admin console</p>
+            </div>
+          </div>
+          <nav className="space-y-1 overflow-y-auto" aria-label="Admin pages">
+            {renderLinks()}
+          </nav>
+        </div>
+        <div className="mt-4 space-y-3 border-t border-[#2A473C] pt-4">
+          <p className="px-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-[#A3C1AD]/70">Quick actions</p>
+          {quickActions}
+        </div>
+      </aside>
+    </>
+  );
+};
 
 export default AdminSlideBar;

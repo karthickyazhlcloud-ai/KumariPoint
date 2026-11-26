@@ -1,6 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { handlePayment } from '../utils/payment';
 import NotificationBar from './NotificationBar';
+import { mergeBusinessCategories } from '../utils/businessCategories';
+
+const formatInr = (amount) => new Intl.NumberFormat('en-IN', {
+  style: 'currency',
+  currency: 'INR',
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 2,
+}).format(Number(amount));
 
 const ListYourBusinessButton = ({ navbar, buttonLabel = 'List Your Business', isAdvertisement = false, open, onOpenChange, showTrigger = true }) => {
   const [internalIsOpen, setInternalIsOpen] = useState(false);
@@ -13,6 +21,8 @@ const ListYourBusinessButton = ({ navbar, buttonLabel = 'List Your Business', is
     { days: 15, baseAmount: 299, gstAmount: 0, totalAmount: 299 },
     { days: 30, baseAmount: 499, gstAmount: 0, totalAmount: 499 },
   ]);
+  const [listingPlan, setListingPlan] = useState(null);
+  const [listingPricingError, setListingPricingError] = useState('');
   const [selectedPlan, setSelectedPlan] = useState({ days: 15, amount: 299, totalAmount: 299 });
   const [pricingReady, setPricingReady] = useState(false);
   const [pricingError, setPricingError] = useState('');
@@ -26,7 +36,7 @@ const ListYourBusinessButton = ({ navbar, buttonLabel = 'List Your Business', is
         const catRes = await fetch(`${API_URL}/api/categories`);
         const catData = await catRes.json();
         if (catRes.ok) {
-          setCategoriesList(catData.map(cat => cat.name));
+          setCategoriesList(mergeBusinessCategories(catData).map((cat) => cat.name));
         }
 
         const locRes = await fetch(`${API_URL}/api/locations`);
@@ -34,19 +44,43 @@ const ListYourBusinessButton = ({ navbar, buttonLabel = 'List Your Business', is
         if (locRes.ok) {
           setLocationsList(locData.map(loc => loc.locationName));
         }
+      } catch (error) {
+        console.error('Error fetching business form dropdown data:', error);
+      }
+
+      if (isAdvertisement) {
+        setPricingReady(false);
+        setPricingError('');
+      } else {
+        setListingPlan(null);
+        setListingPricingError('');
+      }
+
+      try {
+        const pricingResponse = await fetch(`${API_URL}/api/pricing`);
+        const pricing = await pricingResponse.json();
+        if (!pricingResponse.ok) throw new Error(pricing.error || 'Could not load current prices.');
+        if (!isAdvertisement) {
+          const annualAmount = Number(pricing?.listingPlan?.totalAmount);
+          if (!pricing?.listingPlan || pricing.listingPlan.totalAmount == null || !Number.isFinite(annualAmount)) {
+            throw new Error('The annual listing price is missing from the pricing response. Please try again later.');
+          }
+          setListingPlan({ ...pricing.listingPlan, totalAmount: annualAmount });
+          setListingPricingError('');
+        }
         if (isAdvertisement) {
-          setPricingReady(false);
-          setPricingError('');
-          const pricingResponse = await fetch(`${API_URL}/api/pricing`);
-          const pricing = await pricingResponse.json();
-          if (!pricingResponse.ok || !Array.isArray(pricing.advertisementPlans)) throw new Error(pricing.error || 'Could not load advertisement prices.');
+          if (!Array.isArray(pricing.advertisementPlans)) throw new Error(pricing.error || 'Could not load advertisement prices.');
           setAdvertisementPlans(pricing.advertisementPlans);
           setSelectedPlan((current) => pricing.advertisementPlans.find((plan) => plan.days === current.days) || pricing.advertisementPlans[0]);
           setPricingReady(true);
         }
       } catch (error) {
-        if (isAdvertisement) setPricingError('Could not load current advertisement prices. Please close and reopen this form to retry.');
-        console.error("Error fetching dropdown data:", error);
+        if (isAdvertisement) {
+          setPricingError('Could not load current advertisement prices. Please close and reopen this form to retry.');
+        } else {
+          setListingPricingError(error.message || 'Could not load the annual listing price. Please try again.');
+        }
+        console.error('Error fetching pricing:', error);
       }
     };
 
@@ -130,8 +164,8 @@ const ListYourBusinessButton = ({ navbar, buttonLabel = 'List Your Business', is
     e.preventDefault();
     setIsSubmiting(true);
 
-    const finalCategory = formData.category === "Other" ? formData.customCategory : formData.category;
-    const finalLocation = formData.location === "Other" ? formData.customLocation : formData.location;
+    const finalCategory = (isAdvertisement && formData.category === "Other" ? formData.customCategory : formData.category).trim();
+    const finalLocation = formData.location.trim();
 
     const formattedServices = formData.services
       ? formData.services.split(',').map(s => s.trim()).filter(Boolean)
@@ -153,7 +187,6 @@ const ListYourBusinessButton = ({ navbar, buttonLabel = 'List Your Business', is
       img: formData.img || "",
       timing: formData.timing,
       status: "pending",
-      premium: false,
       reviewCount: 0,
       avgRating: 0,
       busnessReview: [],
@@ -173,7 +206,7 @@ const ListYourBusinessButton = ({ navbar, buttonLabel = 'List Your Business', is
           setNotifyConfig({
             isPopUpOpen: true,
             title: 'Business listing required',
-            dis: eligibility.error || 'Only businesses already listed on KumariHub can advertise. Use the same business name and phone number as your listing.',
+            dis: eligibility.error || 'Only businesses already listed on KumariPoint can advertise. Use the same business name and phone number as your listing.',
             type: 'error',
           });
           setIsSubmiting(false);
@@ -237,9 +270,9 @@ const ListYourBusinessButton = ({ navbar, buttonLabel = 'List Your Business', is
 
         if (response.ok) {
           if (isAdvertisement) {
-            window.dispatchEvent(new CustomEvent('kumarihub:advertisement-created', { detail: data }));
+            window.dispatchEvent(new CustomEvent('kumaripoint:advertisement-created', { detail: data }));
           }
-          const receiptMessage = data.receiptEmailSent ? ' Invoice emailed to you.' : ' Email receipt could not be sent; please contact KumariHub with your payment ID.';
+          const receiptMessage = data.receiptEmailSent ? ' Invoice emailed to you.' : ' Email receipt could not be sent; please contact KumariPoint with your payment ID.';
           setNotifyConfig({isPopUpOpen:true, title:"Payment Successful", dis:isAdvertisement ? `Your advertisement is active for ${selectedPlan.days} days.${receiptMessage}` : `Your business details are saved and will appear publicly after admin approval.${receiptMessage}`, type:"success"})
           // alert("Payment successful & Business submitted for Admin approval!");
           // setIsOpen(false);
@@ -301,7 +334,7 @@ const ListYourBusinessButton = ({ navbar, buttonLabel = 'List Your Business', is
             <div className="sticky top-0 bg-[#FCF7EF] border-b border-gray-200 px-6 lg:px-12 py-4 flex items-center justify-between z-10">
               <div>
                 <h2 className="text-xl lg:text-2xl font-bold font-serif text-[#1A2E26]">{isAdvertisement ? 'Advertise Your Business' : 'List Your Business'}</h2>
-                <p className="text-xs text-gray-500">{isAdvertisement ? 'Share your business details to promote it on KumariHub.' : 'Fill in your business details below for admin approval.'}</p>
+                <p className="text-xs text-gray-500">{isAdvertisement ? 'Share your business details to promote it on KumariPoint.' : 'Fill in your business details below for admin approval.'}</p>
               </div>
               <button
                 type="button"
@@ -325,8 +358,7 @@ const ListYourBusinessButton = ({ navbar, buttonLabel = 'List Your Business', is
                           <input type="radio" name="advertisementPlan" value={plan.days} checked={selectedPlan.days === plan.days} onChange={() => setSelectedPlan({ ...plan, amount: plan.totalAmount })} className="accent-[#DBA55C]" />
                           <span className="flex flex-col">
                             <span className="font-bold text-[#1A2E26]">{plan.days} days</span>
-                            <span className="text-sm text-gray-600">INR {Number(plan.totalAmount).toFixed(2)} total</span>
-                            {Number(plan.gstAmount) > 0 && <span className="text-xs text-gray-500">Price INR {Number(plan.baseAmount).toFixed(2)} + GST INR {Number(plan.gstAmount).toFixed(2)}</span>}
+                            <span className="text-sm text-gray-600">INR {Number(plan.baseAmount).toFixed(2)}</span>
                           </span>
                         </label>
                       ))}
@@ -390,36 +422,16 @@ const ListYourBusinessButton = ({ navbar, buttonLabel = 'List Your Business', is
 
                   <div>
                     <label className="text-xs font-semibold text-gray-600">Category *</label>
-                    <select name="category" required value={formData.category} onChange={handleChange} className="w-full mt-1.5 border border-gray-300 rounded-xl px-4 py-3 text-sm outline-none bg-white focus:border-[#DBA55C]">
-                      <option value="">Select a category</option>
-                      {categoriesList.map((cat, idx) => (<option key={idx} value={cat}>{cat}</option>))}
-                      <option value="Other">Others (please specify)</option>
-                    </select>
+                    <input id="business-category" type="text" name="category" list="business-category-options" required value={formData.category} onChange={handleChange} placeholder="Type or choose a category" className="w-full mt-1.5 border border-gray-300 rounded-xl px-4 py-3 text-sm outline-none bg-white focus:border-[#DBA55C]" />
+                    <datalist id="business-category-options">{categoriesList.map((cat) => <option key={cat} value={cat} />)}</datalist>
                   </div>
-
-                  {formData.category === "Other" && (
-                    <div className="md:col-span-2">
-                      <label className="text-xs font-semibold text-gray-600">Specify Custom Category *</label>
-                      <input type="text" name="customCategory" required value={formData.customCategory} onChange={handleChange} placeholder="Enter category..." className="w-full mt-1.5 border border-gray-300 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#DBA55C]" />
-                    </div>
-                  )}
 
 
                   <div>
                     <label className="text-xs font-semibold text-gray-600">Location *</label>
-                    <select name="location" required value={formData.location} onChange={handleChange} className="w-full mt-1.5 border border-gray-300 rounded-xl px-4 py-3 text-sm outline-none bg-white focus:border-[#DBA55C]">
-                      <option value="">Select Location</option>
-                      {locationsList.map((loc, idx) => (<option key={idx} value={loc}>{loc}</option>))}
-                      <option value="Other">Others (please specify)</option>
-                    </select>
+                    <input id="business-location" type="text" name="location" list="business-location-options" required value={formData.location} onChange={handleChange} placeholder="Type or choose a location" className="w-full mt-1.5 border border-gray-300 rounded-xl px-4 py-3 text-sm outline-none bg-white focus:border-[#DBA55C]" />
+                    <datalist id="business-location-options">{locationsList.map((loc) => <option key={loc} value={loc} />)}</datalist>
                   </div>
-
-                  {formData.location === "Other" && (
-                    <div className="md:col-span-2">
-                      <label className="text-xs font-semibold text-gray-600">Specify Custom Location *</label>
-                      <input type="text" name="customLocation" required value={formData.customLocation} onChange={handleChange} placeholder="Enter location..." className="w-full mt-1.5 border border-gray-300 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#DBA55C]" />
-                    </div>
-                  )}
 
 
                   <div>
@@ -504,6 +516,17 @@ const ListYourBusinessButton = ({ navbar, buttonLabel = 'List Your Business', is
                 </div>
                 </>}
 
+                {!isAdvertisement && (
+                  <div className="border-t border-gray-200 pt-5 text-right">
+                    {listingPlan ? (
+                      <>
+                        <p className="text-sm font-bold text-[#1A2E26]">{formatInr(listingPlan.totalAmount)}/year (inclusive of all taxes)</p>
+                      </>
+                    ) : listingPricingError ? (
+                      <p role="alert" className="text-xs text-red-600">{listingPricingError}</p>
+                    ) : <p className="text-xs text-gray-500">Loading annual listing amount...</p>}
+                  </div>
+                )}
                 <div className="flex justify-end gap-4 pt-6 border-t border-gray-200 pb-10">
                   <button type="button" onClick={handleFormCancel} className="md:px-6 md:py-3 rounded-full text-sm font-semibold text-gray-600 hover:bg-gray-100 cursor-pointer">Cancel</button>
                   <button type="submit" disabled={issubmiting || (isAdvertisement && !pricingReady)} className={`text-[#1C1813] px-3 md:px-8 py-1 md:py-3 rounded-full text-sm font-semibold shadow-lg hover:opacity-90 ${issubmiting || (isAdvertisement && !pricingReady)?"cursor-not-allowed bg-gray-500":"cursor-pointer bg-linear-to-r from-[#E6C594] to-[#DBA55C]"}`}>{issubmiting ? "Submitting" : isAdvertisement && !pricingReady ? "Loading prices" : isAdvertisement ? "Submit Advertisement" : "Submit Listing"}</button>

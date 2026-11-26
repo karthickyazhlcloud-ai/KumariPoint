@@ -6,9 +6,9 @@ const initialSettings = {
   advertisement15DayAmount: 299,
   advertisement30DayAmount: 499,
   gstRate: 0,
-  sellerName: 'KumariHub',
+  sellerName: 'KumariPoint',
   sellerGstin: '',
-  invoiceMessage: 'Thank you for listing your business with KumariHub.',
+  invoiceMessage: 'Thank you for listing your business with KumariPoint.',
   paymentFailureMessage: 'Please retry the payment. If you were charged, contact us with your payment reference.',
 };
 
@@ -178,7 +178,7 @@ const BillingSettings = () => {
           <div className="flex items-center justify-between border-b border-[#eee7dc] px-4 py-3 sm:px-6">
             <div><h2 className="font-semibold text-[#1C1813]">Invoice PDF demo</h2><p className="text-xs text-gray-500">Sample customer and payment details</p></div>
             <div className="flex items-center gap-2">
-              <a href={previewUrl} download="KumariHub-Invoice-Demo.pdf" className="rounded-lg bg-[#1A2E26] px-3 py-2 text-sm font-semibold text-white">Download PDF</a>
+              <a href={previewUrl} download="KumariPoint-Invoice-Demo.pdf" className="rounded-lg bg-[#1A2E26] px-3 py-2 text-sm font-semibold text-white">Download PDF</a>
               <button type="button" onClick={() => setPreviewUrl('')} aria-label="Close preview" className="rounded-lg border px-3 py-2 text-sm text-gray-700">Close</button>
             </div>
           </div>

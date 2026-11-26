@@ -47,10 +47,10 @@ const CategoryPage = () => {
   return (
     <div className="p-6 max-w-7xl mx-auto">
       <PageSEO
-        title={`${categoryName} in Kanyakumari | KumariHUB`}
-        description={`Find trusted ${categoryName.toLowerCase()} businesses in Kanyakumari district. Compare local listings, contact details, locations and customer reviews on KumariHUB.`}
+        title={`${categoryName} in Kanyakumari | KumariPoint`}
+        description={`Find trusted ${categoryName.toLowerCase()} businesses in Kanyakumari district. Compare local listings, contact details, locations and customer reviews on KumariPoint.`}
         path={`/${seoSlug(categorySlug)}`}
-        schema={{ '@context': 'https://schema.org', '@type': 'CollectionPage', name: `${categoryName} in Kanyakumari`, url: `https://kumarihub-8592a.web.app/${seoSlug(categorySlug)}` }}
+        schema={{ '@context': 'https://schema.org', '@type': 'CollectionPage', name: `${categoryName} in Kanyakumari`, url: `https://KumariPoint-8592a.web.app/${seoSlug(categorySlug)}` }}
       />
       <h1 className="text-3xl font-serif font-bold capitalize mb-2">{categoryName} Businesses</h1>
       <p className="text-gray-500 mb-8">Showing all active {categoryName} in Kanyakumari</p>

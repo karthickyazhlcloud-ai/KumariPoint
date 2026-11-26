@@ -68,7 +68,6 @@ const Dashboard = () => {
       inactiveListings: 0,
       categories: 0,
       locations: 0,
-      revenue: 0,
     };
 
     const filteredBusinesses = businesses.filter((b) => {
@@ -104,11 +103,6 @@ const Dashboard = () => {
       return expDate >= today && expDate <= nextWeek;
     });
 
-    const premiumList = filteredBusinesses.filter(b => b.premium === true);
-    const calculatedRevenue = premiumList
-      .filter(b => b.status === 'active')
-      .reduce((acc, curr) => acc + (Number(curr.price) || 500), 0);
-
     const inactiveListings = filteredBusinesses.filter(b => b.status === 'inactive').length;
 
     return {
@@ -119,7 +113,6 @@ const Dashboard = () => {
       inactiveListings,
       categories: category ? category.length : 0,
       locations: locationsList ? locationsList.length : 0,
-      revenue: calculatedRevenue,
     };
   }, [businesses, category, locationsList, startDate, endDate]);
 
@@ -130,7 +123,7 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="p-4 sm:p-6 md:p-8 h-screen overflow-y-scroll">
+    <div className="min-h-full p-4 sm:p-6 md:p-8">
 
 
       <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-8">
@@ -140,25 +133,27 @@ const Dashboard = () => {
         </div>
 
 
-        <div className="flex flex-wrap items-center gap-2 sm:gap-3 bg-white p-2.5 rounded-2xl shadow-xs border border-gray-200 w-full lg:w-auto">
-          <span className="text-xs font-semibold text-gray-600">Filter Range:</span>
+        <div className="grid w-full grid-cols-[1fr_auto_1fr] items-center gap-2 rounded-2xl border border-gray-200 bg-white p-3 shadow-xs sm:flex sm:flex-wrap sm:gap-3 sm:p-2.5 lg:w-auto">
+          <span className="col-span-3 text-xs font-semibold text-gray-600 sm:col-span-1">Filter range</span>
           <input
             type="date"
             value={startDate}
             onChange={(e) => setStartDate(e.target.value)}
-            className="text-xs border border-gray-300 p-1.5 rounded-xl outline-none focus:border-[#D4AF37] bg-white"
+            aria-label="Filter start date"
+            className="min-w-0 w-full rounded-xl border border-gray-300 bg-white px-2 py-2 text-xs outline-none focus:border-[#D4AF37] sm:w-auto sm:p-1.5"
           />
-          <span className="text-xs text-gray-400">to</span>
+          <span className="text-center text-xs text-gray-400">to</span>
           <input
             type="date"
             value={endDate}
             onChange={(e) => setEndDate(e.target.value)}
-            className="text-xs border border-gray-300 p-1.5 rounded-xl outline-none focus:border-[#D4AF37] bg-white"
+            aria-label="Filter end date"
+            className="min-w-0 w-full rounded-xl border border-gray-300 bg-white px-2 py-2 text-xs outline-none focus:border-[#D4AF37] sm:w-auto sm:p-1.5"
           />
           {(startDate || endDate) && (
             <button
               onClick={() => { setStartDate(''); setEndDate(''); }}
-              className="text-[11px] text-red-600 font-medium hover:underline ml-auto sm:ml-2 cursor-pointer"
+              className="col-span-3 justify-self-end text-[11px] font-medium text-red-600 hover:underline sm:ml-2 sm:justify-self-auto"
             >
               Clear
             </button>
@@ -167,65 +162,59 @@ const Dashboard = () => {
       </div>
 
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-10">
+      <div className="mb-8 grid grid-cols-2 gap-3 sm:mb-10 sm:gap-5 lg:grid-cols-4">
 
 
-        <div className="bg-white p-5 sm:p-6 rounded-2xl shadow-xs border border-gray-100 flex flex-col justify-between hover:shadow-md transition-shadow">
-          <p className="text-xs sm:text-sm font-medium text-gray-500">Total Businesses</p>
-          <h3 className="text-2xl sm:text-3xl font-bold text-gray-800 mt-2">{stats.totalBusinesses}</h3>
+        <div className="flex min-h-28 flex-col justify-between rounded-2xl border border-gray-100 bg-white p-4 shadow-xs transition-shadow hover:shadow-md sm:min-h-32 sm:p-5">
+          <p className="text-[11px] font-medium leading-4 text-gray-500 sm:text-sm">Total businesses</p>
+          <h3 className="mt-2 text-2xl font-bold text-gray-800 sm:text-3xl">{stats.totalBusinesses}</h3>
         </div>
 
 
-        <div className="bg-white p-5 sm:p-6 rounded-2xl shadow-xs border border-gray-100 flex flex-col justify-between hover:shadow-md transition-shadow">
-          <p className="text-xs sm:text-sm font-medium text-gray-500">Today's Listings</p>
-          <h3 className="text-2xl sm:text-3xl font-bold text-blue-600 mt-2">+{stats.todaysListings}</h3>
+        <div className="flex min-h-28 flex-col justify-between rounded-2xl border border-gray-100 bg-white p-4 shadow-xs transition-shadow hover:shadow-md sm:min-h-32 sm:p-5">
+          <p className="text-[11px] font-medium leading-4 text-gray-500 sm:text-sm">Today&apos;s listings</p>
+          <h3 className="mt-2 text-2xl font-bold text-blue-600 sm:text-3xl">+{stats.todaysListings}</h3>
         </div>
 
 
-        <div className="bg-white p-5 sm:p-6 rounded-2xl shadow-xs border border-gray-100 flex flex-col justify-between hover:shadow-md transition-shadow">
-          <p className="text-xs sm:text-sm font-medium text-gray-500">Upcoming Renewals</p>
-          <h3 className="text-2xl sm:text-3xl font-bold text-amber-600 mt-2">
+        <div className="flex min-h-28 flex-col justify-between rounded-2xl border border-gray-100 bg-white p-4 shadow-xs transition-shadow hover:shadow-md sm:min-h-32 sm:p-5">
+          <p className="text-[11px] font-medium leading-4 text-gray-500 sm:text-sm">Upcoming renewals</p>
+          <h3 className="mt-2 text-2xl font-bold text-amber-600 sm:text-3xl">
             {stats.upcomingRenewals.length}
           </h3>
         </div>
 
 
-        <div className="bg-linear-to-br from-[#FFD1A9] to-[#eda863] p-5 sm:p-6 rounded-2xl shadow-md text-white flex flex-col justify-between hover:shadow-lg transition-shadow">
-          <p className="text-xs sm:text-sm font-medium opacity-90">Total Revenue</p>
-          <h3 className="text-2xl sm:text-3xl font-bold mt-2">₹{Number(stats.revenue || 0).toLocaleString()}</h3>
-        </div>
-
-
-        <div className="bg-white p-5 sm:p-6 rounded-2xl shadow-xs border border-gray-100 flex flex-col justify-between hover:shadow-md transition-shadow">
-          <p className="text-xs sm:text-sm font-medium text-gray-500">Expired Listings</p>
-          <h3 className="text-xl sm:text-2xl font-bold text-red-500 mt-2">
+        <div className="flex min-h-28 flex-col justify-between rounded-2xl border border-gray-100 bg-white p-4 shadow-xs transition-shadow hover:shadow-md sm:min-h-32 sm:p-5">
+          <p className="text-[11px] font-medium leading-4 text-gray-500 sm:text-sm">Expired listings</p>
+          <h3 className="mt-2 text-2xl font-bold text-red-500 sm:text-3xl">
             {stats.expiredListings.length}
           </h3>
         </div>
 
 
-        <div className="bg-white p-5 sm:p-6 rounded-2xl shadow-xs border border-gray-100 flex flex-col justify-between hover:shadow-md transition-shadow">
-          <p className="text-xs sm:text-sm font-medium text-gray-500">Inactive Listings</p>
-          <h3 className="text-xl sm:text-2xl font-bold text-gray-400 mt-2">{stats.inactiveListings}</h3>
+        <div className="flex min-h-28 flex-col justify-between rounded-2xl border border-gray-100 bg-white p-4 shadow-xs transition-shadow hover:shadow-md sm:min-h-32 sm:p-5">
+          <p className="text-[11px] font-medium leading-4 text-gray-500 sm:text-sm">Inactive listings</p>
+          <h3 className="mt-2 text-2xl font-bold text-gray-400 sm:text-3xl">{stats.inactiveListings}</h3>
         </div>
 
 
-        <div className="bg-white p-5 sm:p-6 rounded-2xl shadow-xs border border-gray-100 flex flex-col justify-between hover:shadow-md transition-shadow">
-          <p className="text-xs sm:text-sm font-medium text-gray-500">Categories</p>
-          <h3 className="text-xl sm:text-2xl font-bold text-purple-600 mt-2">{stats.categories}</h3>
+        <div className="flex min-h-28 flex-col justify-between rounded-2xl border border-gray-100 bg-white p-4 shadow-xs transition-shadow hover:shadow-md sm:min-h-32 sm:p-5">
+          <p className="text-[11px] font-medium leading-4 text-gray-500 sm:text-sm">Categories</p>
+          <h3 className="mt-2 text-2xl font-bold text-purple-600 sm:text-3xl">{stats.categories}</h3>
         </div>
 
 
-        <div className="bg-white p-5 sm:p-6 rounded-2xl shadow-xs border border-gray-100 flex flex-col justify-between hover:shadow-md transition-shadow">
-          <p className="text-xs sm:text-sm font-medium text-gray-500">Locations</p>
-          <h3 className="text-xl sm:text-2xl font-bold text-emerald-600 mt-2">{stats.locations}</h3>
+        <div className="flex min-h-28 flex-col justify-between rounded-2xl border border-gray-100 bg-white p-4 shadow-xs transition-shadow hover:shadow-md sm:min-h-32 sm:p-5">
+          <p className="text-[11px] font-medium leading-4 text-gray-500 sm:text-sm">Locations</p>
+          <h3 className="mt-2 text-2xl font-bold text-emerald-600 sm:text-3xl">{stats.locations}</h3>
         </div>
 
       </div>
 
 
       <div className="mb-6">
-        <h1 className="text-xl sm:text-2xl font-serif font-bold text-[#1C1813] mb-4">Businesses List</h1>
+        <h2 className="mb-4 font-serif text-lg font-bold text-[#1C1813] sm:text-2xl">Businesses</h2>
         <div className="bg-white p-4 rounded-2xl shadow-xs border border-gray-200">
           <div className="flex flex-col md:flex-row gap-3 items-center">
 

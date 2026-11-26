@@ -3,6 +3,7 @@ import { adminFetch } from '../../utils/adminFetch';
 import AdminSlideBar from './AdminSlideBar'
 import { Outlet, useNavigate } from 'react-router-dom'
 import { useAdmin } from '../../context/AdminContext';
+import { mergeBusinessCategories } from '../../utils/businessCategories';
 import { X, Clock, ImageIcon } from 'lucide-react';
 
 const AdminLayout = () => {
@@ -11,6 +12,8 @@ const AdminLayout = () => {
 
   const {
     businesses,
+    category,
+    setCategory,
     fetchAdminData,
     loading,
     loadPercentage,
@@ -20,11 +23,6 @@ const AdminLayout = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalType, setModalType] = useState('business');
 
-
-  const [category, setCategory] = useState(() => {
-    const saved = localStorage.getItem('admin_categories');
-    return saved ? JSON.parse(saved) : [];
-  });
 
   const [locationsList, setLocationsList] = useState(() => {
     const saved = localStorage.getItem('admin_locations');
@@ -39,6 +37,7 @@ const AdminLayout = () => {
   const [formData, setFormData] = useState({
     businessName: '',
     ownerName: '',
+    email: '',
     category: '',
     customCategory: '',
     location: '',
@@ -48,9 +47,9 @@ const AdminLayout = () => {
     phone: '',
     whatsapp: '',
     locationLink: '',
+    delivery: false,
     img: '',
     services: '',
-    premium: false,
     timing: {
       sunday: { open: "00.00", close: "00.00", closed: true },
       monday: { open: "9.00 am", close: "5.00 pm", closed: false },
@@ -118,8 +117,8 @@ const AdminLayout = () => {
 
   const handleBusinessSubmit = async (e) => {
     e.preventDefault();
-    const finalCategory = formData.category === "Other" ? formData.customCategory : formData.category;
-    const finalLocation = formData.location === "Other" ? formData.customLocation : formData.location;
+    const finalCategory = formData.category.trim();
+    const finalLocation = formData.location.trim();
 
     const servicesArray = typeof formData.services === 'string'
       ? formData.services.split(',').map(s => s.trim()).filter(Boolean)
@@ -128,16 +127,17 @@ const AdminLayout = () => {
     const newBusinessObject = {
       businessName: formData.businessName,
       ownerName: formData.ownerName,
+      email: formData.email,
       category: finalCategory,
       location: finalLocation,
       address: formData.address,
       aboutBusness: formData.aboutBusness,
-      premium: formData.premium,
       phone: Number(formData.phone),
       whatsapp: Number(formData.whatsapp || formData.phone),
       services: servicesArray,
       timing: formData.timing,
       locationLink: formData.locationLink,
+      delivery: formData.delivery,
       img: formData.img,
       status: "active"
     };
@@ -156,8 +156,8 @@ const AdminLayout = () => {
         setIsModalOpen(false);
         fetchAdminData();
         setFormData({
-          businessName: '', ownerName: '', category: '', customCategory: '', location: '', customLocation: '',
-          address: '', aboutBusness: '', phone: '', whatsapp: '', locationLink: '', img: '', services: '', premium: false,
+          businessName: '', ownerName: '', email: '', category: '', customCategory: '', location: '', customLocation: '',
+          address: '', aboutBusness: '', phone: '', whatsapp: '', locationLink: '', img: '', services: '', delivery: false,
           timing: formData.timing
         });
 
@@ -210,8 +210,9 @@ const AdminLayout = () => {
         const catRes = await adminFetch(`${API_URL}/api/categories`);
         const catData = await catRes.json();
         if (catRes.ok) {
-          setCategory(catData);
-          localStorage.setItem('admin_categories', JSON.stringify(catData));
+          const mergedCategories = mergeBusinessCategories(catData);
+          setCategory(mergedCategories);
+          localStorage.setItem('admin_categories', JSON.stringify(mergedCategories));
         }
       } else {
         alert(data.message || "Failed to add category");
@@ -258,17 +259,17 @@ const AdminLayout = () => {
 
 
   return (
-    <div className="bg-white md:h-screen flex flex-col overflow-hidden mb-15 md:mb-0">
-      <div className='flex flex-col-reverse md:flex-row h-full'>
+      <div className="bg-[#F7F8F6] h-dvh flex flex-col overflow-hidden">
+      <div className="flex flex-1 min-h-0 flex-col md:flex-row">
 
-        <div className="w-full md:w-[30%] xl:w-[20%] md:h-full shrink-0 fixed md:static z-50">
+        <div className="w-full shrink-0 md:h-full md:w-[260px] md:overflow-y-auto">
           <AdminSlideBar setModalType={setModalType} setIsModalOpen={setIsModalOpen} />
         </div>
 
 
-        <main className="min-w-0 min-h-0 flex-1 overflow-y-auto md:w-[70%] xl:w-[80%]">
+        <main className="min-w-0 min-h-0 flex-1 overflow-y-auto pb-6">
           {loading?(
-            <div className="flex justify-center items-center py-10 gap-3 sm:gap-5 h-screen">
+            <div className="flex min-h-full items-center justify-center gap-3 py-10 sm:gap-5">
             <div className="w-8 h-8 border-4 border-[#1A2E26]/20 border-t-[#D4AF37] rounded-full animate-spin"></div>
             <p className="font-bold text-sm text-[#D4AF37]">Loading...{loadPercentage}%</p>
           </div>
@@ -299,45 +300,26 @@ const AdminLayout = () => {
                   </div>
 
                   <div>
+                    <label className="text-xs font-semibold text-gray-600">Email Address</label>
+                    <input type="email" name="email" value={formData.email} onChange={handleChange} placeholder="owner@example.com" className="w-full mt-1 border border-gray-300 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#D4AF37]" />
+                  </div>
+
+                  <div>
                     <label className="text-xs font-semibold text-gray-600">Business Name</label>
                     <input type="text" name="businessName" required value={formData.businessName} onChange={handleChange} placeholder="e.g. Green Valley Turf" className="w-full mt-1 border border-gray-300 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#D4AF37]" />
                   </div>
 
                   <div>
                     <label className="text-xs font-semibold text-gray-600">Category</label>
-                    <select name="category" required value={formData.category} onChange={handleChange} className="w-full mt-1 border border-gray-300 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#D4AF37] bg-white">
-                      <option value="">Select Category</option>
-                      {allCategories.map((cat, idx) => (
-                        <option key={idx} value={cat}>{cat}</option>
-                      ))}
-                      <option value="Other">Other (Type Custom)</option>
-                    </select>
+                    <input type="text" name="category" list="admin-business-category-options" required value={formData.category} onChange={handleChange} placeholder="Type or choose a category" className="w-full mt-1 border border-gray-300 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#D4AF37] bg-white" />
+                    <datalist id="admin-business-category-options">{allCategories.map((cat) => <option key={cat} value={cat} />)}</datalist>
                   </div>
-
-                  {formData.category === "Other" && (
-                    <div className="md:col-span-2">
-                      <label className="text-xs font-semibold text-gray-600">Type Custom Category</label>
-                      <input type="text" name="customCategory" required value={formData.customCategory} onChange={handleChange} placeholder="Enter category name..." className="w-full mt-1 border border-gray-300 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#D4AF37]" />
-                    </div>
-                  )}
 
                   <div>
                     <label className="text-xs font-semibold text-gray-600">Location</label>
-                    <select name="location" required value={formData.location} onChange={handleChange} className="w-full mt-1 border border-gray-300 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#D4AF37] bg-white">
-                      <option value="">Select Location</option>
-                      {allLocations.map((loc, idx) => (
-                        <option key={idx} value={loc}>{loc}</option>
-                      ))}
-                      <option value="Other">Other (Type Custom)</option>
-                    </select>
+                    <input type="text" name="location" list="admin-business-location-options" required value={formData.location} onChange={handleChange} placeholder="Type or choose a location" className="w-full mt-1 border border-gray-300 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#D4AF37] bg-white" />
+                    <datalist id="admin-business-location-options">{allLocations.map((loc) => <option key={loc} value={loc} />)}</datalist>
                   </div>
-
-                  {formData.location === "Other" && (
-                    <div className="md:col-span-2">
-                      <label className="text-xs font-semibold text-gray-600">Type Custom Location</label>
-                      <input type="text" name="customLocation" required value={formData.customLocation} onChange={handleChange} placeholder="Enter location name..." className="w-full mt-1 border border-gray-300 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#D4AF37]" />
-                    </div>
-                  )}
 
                   <div>
                     <label className="text-xs font-semibold text-gray-600">Phone Number</label>
@@ -377,6 +359,11 @@ const AdminLayout = () => {
                   <input type="url" name="locationLink" value={formData.locationLink} onChange={handleChange} placeholder="https://maps.app.goo.gl/..." className="w-full mt-1 border border-gray-300 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#D4AF37]" />
                 </div>
 
+                <label className="flex items-center gap-2 text-xs font-semibold text-gray-700">
+                  <input type="checkbox" name="delivery" checked={formData.delivery} onChange={handleChange} className="h-4 w-4 accent-[#D4AF37]" />
+                  Delivery available
+                </label>
+
 
                 <div className="border border-gray-200 rounded-2xl p-4 bg-gray-50/50">
                   <div className="flex items-center gap-2 mb-3">
@@ -404,17 +391,7 @@ const AdminLayout = () => {
                     ))}
                   </div>
                 </div>
-
-
-                <div className="flex items-center gap-2 pt-2">
-                  <input type="checkbox" name="premium" id="premiumCheckbox" checked={formData.premium} onChange={handleChange} className="w-4 h-4 accent-[#D4AF37] cursor-pointer" />
-                  <label htmlFor="premiumCheckbox" className="text-xs font-semibold text-gray-700 cursor-pointer">
-                    Mark as Premium Listing â­
-                  </label>
-                </div>
-
-
-                <div className="pt-4">
+<div className="pt-4">
                   <button type="submit" className="w-full bg-[#1A2E26] text-[#D4AF37] py-3 rounded-xl font-bold text-sm hover:bg-black transition-colors cursor-pointer shadow-lg">
                     Save & Publish Business
                   </button>

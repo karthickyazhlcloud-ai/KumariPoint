@@ -25,16 +25,16 @@ export default async function share(req, res) {
     const { business } = await response.json();
     if (!business) throw new Error('Business was not found');
 
-    const canonicalUrl = `https://kumarihub.in/${slug(business.category)}/${slug(business.location)}/${slug(business.businessName)}`;
-    const title = `${business.businessName} | KumariHUB`;
+    const canonicalUrl = `https://KumariPoint.in/${slug(business.category)}/${slug(business.location)}/${slug(business.businessName)}`;
+    const title = `${business.businessName} | KumariPoint`;
     const description = `${business.category} in ${business.location}`;
-    const image = business.img || 'https://kumarihub.in/og-cover.jpg';
+    const image = business.img || 'https://KumariPoint.in/og-cover.jpg';
     const metadata = `
       <title>${escapeHtml(title)}</title>
       <meta name="description" content="${escapeHtml(description)}" />
       <link rel="canonical" href="${escapeHtml(canonicalUrl)}" />
       <meta property="og:type" content="website" />
-      <meta property="og:site_name" content="KumariHUB" />
+      <meta property="og:site_name" content="KumariPoint" />
       <meta property="og:url" content="${escapeHtml(canonicalUrl)}" />
       <meta property="og:title" content="${escapeHtml(title)}" />
       <meta property="og:description" content="${escapeHtml(description)}" />

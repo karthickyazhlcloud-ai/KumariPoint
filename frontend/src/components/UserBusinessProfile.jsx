@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import {
   Star, MapPin, Phone, MessageCircle, ShieldCheck, Clock,
-  User, Globe, Share2, Award, ThumbsUp, Truck, Send, Link2
+  User, Globe, Share2, Award, ThumbsUp, Truck, Send, Link2, Crown, Check
 } from 'lucide-react';
 import BusinessSEO from './BusinessSEO';
 import ListYourBusinessButton from './ListYourBusinessButton';
@@ -48,6 +48,12 @@ export default function UserBusinessProfile() {
 
   useEffect(() => {
     fetchBusinessDetails();
+  }, [category, location, businessName]);
+
+  // Client-side navigation keeps the previous page's scroll position by default.
+  // Start each business profile at the top when it opens (or changes).
+  useEffect(() => {
+    window.scrollTo(0, 0);
   }, [category, location, businessName]);
 
 
@@ -126,11 +132,6 @@ export default function UserBusinessProfile() {
               />
 
               <div className="absolute top-4 left-4 flex flex-wrap gap-2">
-                {business.premium && (
-                  <span className="bg-linear-to-r from-amber-500 to-amber-600 text-white text-xs font-bold px-3 py-1.5 rounded-md flex items-center gap-1 shadow-md">
-                    ⭐ Premium Listing
-                  </span>
-                )}
                 <span className="bg-emerald-600 text-white text-xs font-bold px-3 py-1.5 rounded-md flex items-center gap-1 shadow-md">
                   <ShieldCheck className="w-3.5 h-3.5" /> Verified Business
                 </span>
@@ -178,9 +179,7 @@ export default function UserBusinessProfile() {
                   <div className="border-l border-white/20 pl-2.5 text-xs">
                     <div className="flex text-amber-400 gap-0.5">
                       {[1, 2, 3, 4, 5].map((star) => (
-                        <span key={star} className={star <= Math.round(Number(avgRating)) ? "text-amber-400" : "text-gray-650"}>
-                          ★
-                        </span>
+                        <Star key={star} size={14} className={star <= Math.round(Number(avgRating)) ? "text-amber-400" : "text-gray-500"} fill={star <= Math.round(Number(avgRating)) ? 'currentColor' : 'none'} />
                       ))}
                     </div>
                     <p className="text-[10px] text-gray-300 font-medium">{totalReviewsCount} Ratings</p>
@@ -224,7 +223,7 @@ export default function UserBusinessProfile() {
             <div className="flex flex-wrap gap-2.5">
               {(business.services && business.services.length > 0 ? business.services : []).map((service, index) => (
                 <span key={index} className="bg-orange-50 text-orange-800 border border-orange-200/60 text-xs font-semibold px-3.5 py-2 rounded-xl flex items-center gap-1.5">
-                  ✓ {service}
+                  <Check className="h-3.5 w-3.5" aria-hidden="true" /> {service}
                 </span>
               ))}
             </div>
@@ -279,7 +278,7 @@ export default function UserBusinessProfile() {
                 rel="noopener noreferrer"
                 className="block text-center bg-[#1C1813] hover:bg-black text-white text-xs font-bold py-3 px-4 rounded-xl transition shadow"
               >
-                Open in Google Maps ↗
+                Open in Google Maps
               </a>
             </div>
           </div>
@@ -308,11 +307,11 @@ export default function UserBusinessProfile() {
                   onChange={(e) => setNewReview({ ...newReview, rating: Number(e.target.value) })}
                   className="w-full px-3.5 py-2.5 bg-white border border-gray-300 rounded-xl text-sm focus:outline-none focus:border-amber-500 font-medium"
                 >
-                  <option value={5}>⭐⭐⭐⭐⭐</option>
-                  <option value={4}>⭐⭐⭐⭐</option>
-                  <option value={3}>⭐⭐⭐</option>
-                  <option value={2}>⭐⭐</option>
-                  <option value={1}>⭐</option>
+                  <option value={5}>5 stars</option>
+                  <option value={4}>4 stars</option>
+                  <option value={3}>3 stars</option>
+                  <option value={2}>2 stars</option>
+                  <option value={1}>1 star</option>
                 </select>
               </div>
 
@@ -348,7 +347,9 @@ export default function UserBusinessProfile() {
                     <div>
                       <div className="flex justify-between items-center gap-3">
                         <span className="font-semibold text-gray-800 text-sm">{rev.userName}</span>
-                        <span className="text-amber-500 text-xs">{"★".repeat(rev.rating)}</span>
+                        <span className="flex text-amber-500" aria-label={`${rev.rating} stars`}>
+                          {Array.from({ length: Math.max(0, Math.min(5, Number(rev.rating) || 0)) }, (_, index) => <Star key={index} size={12} fill="currentColor" />)}
+                        </span>
                       </div>
                       <p className="text-gray-600 text-xs sm:text-sm">{rev.comment}</p>
                     </div>
@@ -392,7 +393,7 @@ export default function UserBusinessProfile() {
                       </div>
                     </div>
                     <span className="bg-emerald-100 text-emerald-800 text-xs font-bold px-2 py-1 rounded-lg shrink-0">
-                      ★ {item.avgRating || '4.0'}
+                      <Star size={12} className="mr-1 inline" fill="currentColor" />{item.avgRating || '4.0'}
                     </span>
                   </Link>
                 ))
@@ -415,8 +416,8 @@ export default function UserBusinessProfile() {
               <div className="flex items-start gap-3">
                 <div className="p-2 bg-amber-50 text-amber-700 rounded-lg shrink-0"><Award className="w-4 h-4" /></div>
                 <div>
-                  <p className="font-bold text-gray-800">Premium Quality</p>
-                  <p className="text-gray-500 text-[11px]">High-quality services guaranteed</p>
+                  <p className="font-bold text-gray-800">Quality Service</p>
+                  <p className="text-gray-500 text-[11px]">Find trusted local services for your needs</p>
                 </div>
               </div>
               <div className="flex items-start gap-3">
@@ -440,7 +441,7 @@ export default function UserBusinessProfile() {
             <div className="absolute -right-6 -bottom-6 opacity-10">
               <Award className="w-32 h-32 text-[#DBA55C]" />
             </div>
-            <div className="text-2xl mb-2">👑</div>
+            <Crown className="mx-auto mb-2 h-7 w-7 text-[#DBA55C]" aria-hidden="true" />
             <h3 className="text-lg font-serif font-bold text-[#DBA55C]">Are you a Business Owner?</h3>
             <p className="text-gray-300 text-xs mt-2 mb-5">List your business and reach thousands of potential customers.</p>
             <button
@@ -448,7 +449,7 @@ export default function UserBusinessProfile() {
               onClick={() => setIsBusinessFormOpen(true)}
               className="inline-block bg-linear-to-r from-[#DBA55C] to-[#c8934d] hover:from-[#c8934d] hover:to-[#b6823d] text-gray-900 font-bold text-xs uppercase tracking-wider py-3 px-6 rounded-xl shadow transition"
             >
-              List Your Business →
+              List Your Business <span aria-hidden="true">→</span>
             </button>
           </div>
 
@@ -472,7 +473,7 @@ export default function UserBusinessProfile() {
 
               <button
                 onClick={() => {
-                  const shareText = `${business.businessName} in ${business.location}\nDiscover this business on KumariHUB:\n${window.location.href}`;
+                  const shareText = `${business.businessName} in ${business.location}\nDiscover this business on KumariPoint:\n${window.location.href}`;
                   window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`, '_blank', 'noopener,noreferrer');
                 }}
                 className="w-10 h-10 rounded-full bg-emerald-600 text-white flex items-center justify-center hover:bg-emerald-700 transition cursor-pointer shadow-sm"

@@ -1,17 +1,20 @@
 import React, { useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { adminFetch } from '../../utils/adminFetch';
+import ListYourBusinessButton from '../../components/ListYourBusinessButton';
 
 const API_URL = import.meta.env.VITE_API_URL;
+const emptyForm = { companyName: '', place: '', phone: '', category: '', coverPhoto: '', description: '' };
 
 const formatDate = (value) => value ? new Date(value).toLocaleDateString() : 'â€”';
 
-const emptyForm = { companyName: '', place: '', phone: '', category: '', coverPhoto: '', description: '' };
-
-const PremiumList = () => {
+const AdvertisementList = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [advertisements, setAdvertisements] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [editing, setEditing] = useState(null);
+  const [addAdvertisementOpen, setAddAdvertisementOpen] = useState(searchParams.get('add') === 'true');
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
   const [actionError, setActionError] = useState('');
@@ -36,6 +39,19 @@ const PremiumList = () => {
       });
 
     return () => { isMounted = false; };
+  }, []);
+
+  useEffect(() => {
+    if (searchParams.get('add') === 'true') setAddAdvertisementOpen(true);
+  }, [searchParams]);
+
+  useEffect(() => {
+    const onAdvertisementCreated = (event) => {
+      const created = event.detail;
+      if (created?._id) setAdvertisements((current) => [created, ...current.filter((item) => item._id !== created._id)]);
+    };
+    window.addEventListener('kumaripoint:advertisement-created', onAdvertisementCreated);
+    return () => window.removeEventListener('kumaripoint:advertisement-created', onAdvertisementCreated);
   }, []);
 
   const startEditing = (item) => {
@@ -71,9 +87,10 @@ const PremiumList = () => {
   };
 
   return (
-    <div className="p-4 sm:p-6 h-screen overflow-y-scroll">
+    <div className="min-h-full p-4 sm:p-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
         <h2 className="text-sm sm:text-base md:text-lg font-bold text-gray-800 uppercase tracking-wider">Advertisement List</h2>
+        <button type="button" onClick={() => setAddAdvertisementOpen(true)} className="rounded-full bg-[#1A2E26] px-4 py-2 text-xs font-semibold text-white">+ Add Advertisement</button>
       </div>
       {actionError && !editing && <p role="alert" className="mb-4 rounded-xl bg-red-50 p-3 text-xs text-red-700">{actionError}</p>}
 
@@ -102,7 +119,7 @@ const PremiumList = () => {
                   <span className={`text-[10px] font-semibold px-2 py-1 rounded-md ${isActive ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-200 text-gray-600'}`}>
                     {isActive ? 'Active' : 'Expired'}
                   </span>
-                  <span className="text-[10px] font-semibold text-gray-600">Paid: {formatDate(item.createdAt)}</span>
+                  <span className="text-[10px] font-semibold text-gray-600">{String(item.paymentId || '').startsWith('admin-') ? 'Created:' : 'Paid:'} {formatDate(item.createdAt)}</span>
                   <span className="text-[10px] font-semibold text-gray-600">Expires: {formatDate(item.expiresAt)}</span>
                   <div className="flex gap-2">
                     <button type="button" onClick={() => startEditing(item)} className="rounded-lg bg-[#1A2E26] px-3 py-1.5 text-[10px] font-semibold text-white">Edit</button>
@@ -130,8 +147,17 @@ const PremiumList = () => {
           <div className="flex justify-end gap-2"><button type="button" disabled={saving} onClick={() => setEditing(null)} className="rounded-full border px-4 py-2 text-sm">Cancel</button><button type="submit" disabled={saving} className="rounded-full bg-[#DBA55C] px-5 py-2 text-sm font-semibold text-[#1A2E26] disabled:opacity-60">{saving ? 'Saving…' : 'Save changes'}</button></div>
         </form>
       </div>}
+      <ListYourBusinessButton
+        isAdvertisement
+        showTrigger={false}
+        open={addAdvertisementOpen}
+        onOpenChange={(open) => {
+          setAddAdvertisementOpen(open);
+          if (!open && searchParams.has('add')) setSearchParams({}, { replace: true });
+        }}
+      />
     </div>
   );
 };
 
-export default PremiumList;
+export default AdvertisementList;

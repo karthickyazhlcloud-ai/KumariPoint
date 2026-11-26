@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url';
 
 const scriptDirectory = dirname(fileURLToPath(import.meta.url));
 const frontendDirectory = resolve(scriptDirectory, '..');
-const siteOrigin = 'https://kumarihub-8592a.web.app';
+const siteOrigin = 'https://KumariPoint-8592a.web.app';
 
 function readApiUrl() {
   if (process.env.VITE_API_URL) return process.env.VITE_API_URL.replace(/\/$/, '');

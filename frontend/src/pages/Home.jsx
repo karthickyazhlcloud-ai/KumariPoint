@@ -6,6 +6,7 @@ import NavBar from '../components/NavBar.jsx';
 import { useNavigate, Link } from 'react-router-dom';
 import SearchBox from '../components/SearchBox.jsx';
 import PopularCategories from '../components/PopularCategories.jsx';
+import { mergeBusinessCategories } from '../utils/businessCategories';
 import fallbackBusinessImage from '../assets/avif/kanyakumari-featured-local-business.avif';
 import PageSEO from '../components/PageSEO';
 import { seoSlug } from '../utils/seo';
@@ -21,7 +22,7 @@ const Home = ({ searchTerm, setSearchTerm }) => {
 
   const [category, setCategory] = useState(() => {
     const saved = localStorage.getItem('home_categories');
-    return saved ? JSON.parse(saved) : [];
+    return mergeBusinessCategories(saved ? JSON.parse(saved) : []);
   });
 
   const [selectedCategory, setSelectedCategory] = useState("All");
@@ -44,10 +45,10 @@ const Home = ({ searchTerm, setSearchTerm }) => {
       .then((data) => { if (isMounted) setAdvertisements(Array.isArray(data) ? data : []); })
       .catch((error) => console.error('Could not load advertisements:', error));
 
-    window.addEventListener('kumarihub:advertisement-created', handleNewAdvertisement);
+    window.addEventListener('kumaripoint:advertisement-created', handleNewAdvertisement);
     return () => {
       isMounted = false;
-      window.removeEventListener('kumarihub:advertisement-created', handleNewAdvertisement);
+      window.removeEventListener('kumaripoint:advertisement-created', handleNewAdvertisement);
     };
   }, [API_URL]);
 
@@ -66,10 +67,10 @@ const Home = ({ searchTerm, setSearchTerm }) => {
         const catData = await catRes.json();
 
         if (catRes.ok) {
-          const formattedCategories = catData.map((cat) => ({
+          const formattedCategories = mergeBusinessCategories(catData.map((cat) => ({
             name: cat.name,
             img: cat.img
-          }));
+          })));
 
           const localCategories = localStorage.getItem('home_categories');
           const parsedLocal = localCategories ? JSON.parse(localCategories) : [];
@@ -143,7 +144,6 @@ const Home = ({ searchTerm, setSearchTerm }) => {
               timing: item.timing,
               aboutBusness: item.aboutBusness,
               locationLink: item.locationLink,
-              premium: item.premium
             }));
 
             sessionStorage.setItem('home_businesses', JSON.stringify(initialOptimized));
@@ -197,7 +197,6 @@ const Home = ({ searchTerm, setSearchTerm }) => {
               timing: item.timing,
               aboutBusness: item.aboutBusness,
               locationLink: item.locationLink,
-              premium: item.premium
             }));
 
             setBusinessData(allActiveBusinesses);
@@ -242,8 +241,7 @@ const Home = ({ searchTerm, setSearchTerm }) => {
     const locationSlug = seoSlug(business.location);
     const nameSlug = seoSlug(business.businessName);
     const url = `/${categorySlug}/${locationSlug}/${nameSlug}`;
-    window.open(url, '_blank');
-
+    navigate(url);
   };
 
   const handleAdvertisementClick = async (advertisement) => {
@@ -277,14 +275,14 @@ const Home = ({ searchTerm, setSearchTerm }) => {
   return (
     <div className="overflow-x-hidden">
       <PageSEO
-        title="KumariHUB | Find Local Businesses in Kanyakumari"
+        title="KumariPoint | Find Local Businesses in Kanyakumari"
         description="Discover trusted restaurants, shops, salons, home services and more in Nagercoil and across Kanyakumari district. Find contact details, directions and reviews."
         path="/"
         schema={{
           '@context': 'https://schema.org',
           '@type': 'WebSite',
-          name: 'KumariHUB',
-          url: 'https://kumarihub-8592a.web.app/',
+          name: 'KumariPoint',
+          url: 'https://KumariPoint-8592a.web.app/',
           description: 'A local business directory for Kanyakumari district, Tamil Nadu, India.',
           inLanguage: 'en-IN',
         }}
@@ -300,9 +298,11 @@ const Home = ({ searchTerm, setSearchTerm }) => {
       <div className="flex flex-col items-center gap-6 md:gap-10">
 
         <section className="bg-[#1C1813] rounded-b-4xl sm:rounded-b-[3rem] w-full px-4 sm:px-6">
-          <div className="max-w-7xl mx-auto flex justify-between items-center py-4 sm:py-5 border-b border-white/10">
-            <p className="text-[#DBA55C] md:text-3xl font-bold font-serif ">Kumari HUB</p>
-            <ListYourBusinessButton />
+          <div className="max-w-7xl mx-auto flex flex-col items-start gap-3 py-4 sm:flex-row sm:items-center sm:justify-between sm:py-5 border-b border-white/10">
+            <p className="text-[#DBA55C] md:text-3xl font-bold font-serif ">KumariPoint</p>
+            <div className="flex w-full flex-wrap justify-start gap-2 sm:w-auto sm:justify-end">
+              <ListYourBusinessButton buttonLabel="List Your Business" />
+            </div>
           </div>
 
           <div className="text-white flex flex-col justify-center items-center md:space-y-6 lg:space-y-6 sm:space-y-10 py-10 sm:py-15 max-w-4xl mx-auto">
@@ -310,7 +310,7 @@ const Home = ({ searchTerm, setSearchTerm }) => {
               <span><MapPinned className="w-3" /></span>KANYAKUMARI DISTRICT
             </p>
 
-            <h1 className="text-center text-3xl md:text-5xl lg:text-6xl xl:text-7xl font-serif font-bold leading-tight sm:leading-22 md:leading-13 lg:leading-16  xl:leading-22 w-screen p-3">
+            <h1 className="text-center text-3xl md:text-5xl lg:text-6xl xl:text-7xl font-serif font-bold leading-tight sm:leading-22 md:leading-13 lg:leading-16 xl:leading-22 w-full p-3">
               Discover <span className="text-[#DBA55C] inline-block">Local Businesses</span> <br className="hidden sm:block" />In Kanyakumari
             </h1>
 
@@ -480,8 +480,9 @@ const Home = ({ searchTerm, setSearchTerm }) => {
             <p className="text-amber-100/70 text-xs sm:text-sm font-light mt-2 max-w-md">
               Get listed today and reach thousands of local customers across Kanyakumari district
             </p>
-            <div className="mt-4">
-              <ListYourBusinessButton />
+            <div className="mt-4 flex flex-wrap justify-center gap-3">
+              <ListYourBusinessButton buttonLabel="List Your Business" />
+              <ListYourBusinessButton buttonLabel="Add Advertisement" isAdvertisement />
             </div>
           </div>
         </section>

@@ -32,10 +32,10 @@ const LocationPage = () => {
   return (
     <main className="mx-auto max-w-7xl p-6">
       <PageSEO
-        title={`Businesses in ${locationName}, Kanyakumari | KumariHUB`}
-        description={`Find trusted local businesses in ${locationName}, Kanyakumari. Browse shops, services, restaurants and more with contact details and reviews on KumariHUB.`}
+        title={`Businesses in ${locationName}, Kanyakumari | KumariPoint`}
+        description={`Find trusted local businesses in ${locationName}, Kanyakumari. Browse shops, services, restaurants and more with contact details and reviews on KumariPoint.`}
         path={canonicalPath}
-        schema={{ '@context': 'https://schema.org', '@type': 'CollectionPage', name: `Businesses in ${locationName}`, url: `https://kumarihub-8592a.web.app${canonicalPath}` }}
+        schema={{ '@context': 'https://schema.org', '@type': 'CollectionPage', name: `Businesses in ${locationName}`, url: `https://KumariPoint-8592a.web.app${canonicalPath}` }}
       />
       <h1 className="mb-2 text-3xl font-bold capitalize">Businesses in {locationName}</h1>
       <p className="mb-8 text-gray-500">Local businesses serving {locationName}, Kanyakumari district.</p>

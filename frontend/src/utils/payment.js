@@ -21,7 +21,7 @@ export const handlePayment = async (API_URL, businessData, onSuccess, plan = nul
       key: order.keyId,
       amount: order.amount,
       currency: order.currency,
-      name: "KumariHUB",
+      name: "KumariPoint",
       description: `Business Listing Fee - INR ${(Number(order.amount) / 100).toFixed(2)} (GST if applicable)`,
       order_id: order.id,
       ...(plan && { description: `Business Advertisement - ${plan.days} days - INR ${plan.amount}` }),

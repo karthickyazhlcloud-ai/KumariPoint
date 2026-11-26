@@ -39,10 +39,10 @@ const CategoryLocationPage = () => {
   return (
     <div className="p-6 max-w-7xl mx-auto">
       <PageSEO
-        title={`${categoryName} in ${locationName}, Kanyakumari | KumariHUB`}
-        description={`Explore active ${categoryName.toLowerCase()} in ${locationName}, Kanyakumari. View local business details, contact information, directions and reviews on KumariHUB.`}
+        title={`${categoryName} in ${locationName}, Kanyakumari | KumariPoint`}
+        description={`Explore active ${categoryName.toLowerCase()} in ${locationName}, Kanyakumari. View local business details, contact information, directions and reviews on KumariPoint.`}
         path={`/${seoSlug(categorySlug)}/${seoSlug(locationSlug)}`}
-        schema={{ '@context': 'https://schema.org', '@type': 'CollectionPage', name: `${categoryName} in ${locationName}`, url: `https://kumarihub-8592a.web.app/${seoSlug(categorySlug)}/${seoSlug(locationSlug)}` }}
+        schema={{ '@context': 'https://schema.org', '@type': 'CollectionPage', name: `${categoryName} in ${locationName}`, url: `https://KumariPoint-8592a.web.app/${seoSlug(categorySlug)}/${seoSlug(locationSlug)}` }}
       />
       <h1 className="text-3xl font-serif font-bold capitalize mb-2">
         {categoryName} in {locationName}

@@ -10,8 +10,8 @@ const RecentBusinesses = () => {
 
   return (
     <div>
-      <div className="p-6 h-screen overflow-y-scroll">
-        <h3 className="text-base font-serif font-bold text-[#1A2E26] mb-4">Recent Businesses</h3>
+      <div className="min-h-full p-4 sm:p-6">
+        <h3 className="mb-4 font-serif text-lg font-bold text-[#1A2E26] sm:text-xl">Recent businesses</h3>
         <div className="space-y-3">
           {businesses.length > 0 ? (
             businesses.map((b, idx) => (

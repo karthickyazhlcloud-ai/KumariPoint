@@ -1,6 +1,7 @@
 import { adminFetch } from '../utils/adminFetch';
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { mergeBusinessCategories } from '../utils/businessCategories';
 const API_URL = import.meta.env.VITE_API_URL;
 
 const AdminBusinessProfile = () => {
@@ -48,7 +49,7 @@ const AdminBusinessProfile = () => {
           }
         });
       }
-      if (catRes.ok) setCategories(catData);
+      if (catRes.ok) setCategories(mergeBusinessCategories(catData));
       if (locRes.ok) setLocations(locData);
 
     } catch (error) {
@@ -179,7 +180,7 @@ const AdminBusinessProfile = () => {
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-white">
+      <div className="flex min-h-full flex-col items-center justify-center bg-white">
         <div className="w-10 h-10 border-4 border-[#1A2E26]/20 border-t-[#D4AF37] rounded-full animate-spin mb-4"></div>
         <p className="text-xs font-semibold text-[#1A2E26]">Loading Business Profile...</p>
       </div>
@@ -188,7 +189,7 @@ const AdminBusinessProfile = () => {
 
   if (!business) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-white p-4">
+      <div className="flex min-h-full flex-col items-center justify-center bg-white p-4">
         <p className="text-sm font-bold text-gray-500 mb-4 text-center">Business not found.</p>
         <button onClick={() => navigate(-1)} className="text-xs bg-[#1A2E26] text-white px-4 py-2 rounded-xl cursor-pointer">
           Go Back
@@ -198,7 +199,7 @@ const AdminBusinessProfile = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#EAEFEA]/30 p-3 sm:p-6 relative">
+    <div className="min-h-full bg-[#EAEFEA]/30 p-3 sm:p-6 relative">
       <div className="max-w-4xl mx-auto space-y-6">
 
         <div className="bg-white p-4 sm:p-8 rounded-3xl shadow-sm border border-gray-200 space-y-6">
@@ -212,11 +213,6 @@ const AdminBusinessProfile = () => {
               <div className="min-w-0">
                 <div className="flex flex-wrap items-center gap-2">
                   <h1 className="text-sm md:text-lg sm:text-xl font-serif font-bold text-[#1A2E26] truncate">{business.businessName}</h1>
-                  {business.premium && (
-                    <span className="bg-amber-100 text-amber-800 text-[7px] md:text-[10px] font-bold px-0.5 md:px-2 py-0.5 rounded-md border border-amber-200 shrink-0">
-                      Premium
-                    </span>
-                  )}
                   <div className="flex items-center gap-2 md:self-center">
                     <span className={`text-[7px] md:text-[10px]  font-semibold px-1 md:px-3 py-0.5 md:py-1.5 rounded-xl capitalize ${business.status === 'active'
                         ? 'bg-emerald-100 text-emerald-700'
@@ -229,7 +225,7 @@ const AdminBusinessProfile = () => {
                   </div>
                 </div>
 
-                <p className="text-[8px] md:text-xs font-semibold text-[#D4AF37] mt-1">{business.category} • {business.location}</p>
+                <p className="text-[8px] md:text-xs font-semibold text-[#D4AF37] mt-1">{business.category} â€¢ {business.location}</p>
               </div>
             </div>
 
@@ -322,7 +318,7 @@ const AdminBusinessProfile = () => {
           <div className="bg-white rounded-3xl max-w-2xl w-full p-4 sm:p-6 space-y-4 max-h-[90vh] overflow-y-auto shadow-xl scrollbar-none my-auto">
             <div className="flex justify-between items-center pb-3 border-b border-gray-100 sticky top-0 bg-white z-10">
               <h2 className="text-sm font-bold uppercase tracking-wider underline underline-offset-2 text-yellow-500">Edit Business Details</h2>
-              <button onClick={() => setIsEditing(false)} className="text-gray-400 hover:text-gray-600 text-base font-bold cursor-pointer p-1">✕</button>
+              <button onClick={() => setIsEditing(false)} className="text-gray-400 hover:text-gray-600 text-base font-bold cursor-pointer p-1">âœ•</button>
             </div>
 
             <form onSubmit={handleUpdateSubmit} className="space-y-3 text-xs">
@@ -374,12 +370,6 @@ const AdminBusinessProfile = () => {
                 <div>
                   <label className="font-semibold text-gray-700">Expiry Date</label>
                   <input type="date" name="expiryDate" value={formData.expiryDate || ''} onChange={handleChange} className="w-full mt-1 p-2.5 rounded-xl border border-gray-200 outline-none focus:border-[#D4AF37]" />
-                </div>
-                <div className="flex items-center pt-0 sm:pt-5">
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input type="checkbox" name="premium" checked={formData.premium || false} onChange={handleChange} className="w-4 h-4 text-[#D4AF37] rounded border-gray-300 focus:ring-[#D4AF37]" />
-                    <span className="font-semibold text-gray-700">Mark as Premium Listing</span>
-                  </label>
                 </div>
               </div>
 

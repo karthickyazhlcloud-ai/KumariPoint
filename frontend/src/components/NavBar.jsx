@@ -37,14 +37,14 @@ const NavBar = ({ onScrollToBusiness, advertisement, onAdvertisementClick }) => 
       <div className="flex items-center justify-between gap-3 px-4 lg:px-10 bg-[#FCF7EF] py-2 md:h-15 shadow-sm transition-all">
 
         {/* Top/Main Row for Logo and Actions */}
-        <div className="flex items-center justify-between w-auto h-11 md:h-full">
+        <div className="flex items-center justify-between w-auto h-11 shrink-0 md:h-full">
           <p className="text-[#DBA55C] font-bold font-serif lg:w-40 text-sm md:text-lg flex">
-            Kumari <span className="text-black">HUB</span>
+            KumariPoint
           </p>
 
         </div>
 
-        <div className="h-10 min-w-0 md:flex-[3]">
+        <div className="h-10 min-w-0 flex-1 md:flex-[3]">
           <SearchBox navbar={true}/>
         </div>
 
