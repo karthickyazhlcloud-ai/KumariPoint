@@ -1,7 +1,5 @@
-
 {
   "hosting": {
-    "site": "kumarihub-8592a",
     "public": "frontend/dist",
     "ignore": [
       "firebase.json",
