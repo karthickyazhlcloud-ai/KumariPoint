@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import BusinessCard from '../components/BusinessCard';
 import PageSEO from '../components/PageSEO';
 import { seoSlug, titleCaseSlug } from '../utils/seo';
 
 const CategoryPage = () => {
   const { categorySlug } = useParams();
+  const navigate = useNavigate();
   const API_URL = import.meta.env.VITE_API_URL;
 
   const [businesses, setBusinesses] = useState([]);
@@ -40,7 +41,7 @@ const CategoryPage = () => {
     const locationSlug = seoSlug(business.location);
     const nameSlug = seoSlug(business.businessName);
     const url = `/${categorySlug}/${locationSlug}/${nameSlug}`;
-    window.open(url, '_blank');
+    navigate(url);
 
   };
 

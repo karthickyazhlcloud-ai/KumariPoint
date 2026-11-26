@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import BusinessProfileCard from '../../components/BusinessProfileCard';
 import { useAdmin } from '../../context/AdminContext';
+import { useNavigate } from 'react-router-dom';
 
 const RecentBusinesses = () => {
 
   const API_URL = import.meta.env.VITE_API_URL;
   const { businesses } = useAdmin();
+  const navigate = useNavigate();
 
 
   return (
@@ -24,7 +26,7 @@ const RecentBusinesses = () => {
                 category={b.category}
                 businessIMG={b.img}
                 businessStatus={b.status}
-                buttonOnClick={() => window.open(`/admin-dashboard/business/${b._id}`, '_blank')}
+                buttonOnClick={() => navigate(`/admin-dashboard/business/${b._id}`)}
               />
             ))
           ) : (

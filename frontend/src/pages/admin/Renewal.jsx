@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import BusinessProfileCard from '../../components/BusinessProfileCard';
 import { useAdmin } from '../../context/AdminContext';
+import { useNavigate } from 'react-router-dom';
 
 const Renewal = () => {
 
 
   const { businesses, loading } = useAdmin();
+  const navigate = useNavigate();
   const [subTab, setSubTab] = useState('expired');
 
 
@@ -67,7 +69,7 @@ const Renewal = () => {
           currentList.map((item) => (
             <BusinessProfileCard
               key={item._id}
-              buttonOnClick={() => window.open(`/admin-dashboard/business/${item._id}`, '_blank')}
+              buttonOnClick={() => navigate(`/admin-dashboard/business/${item._id}`)}
               businessIMG={item.img}
               businessName={item.businessName}
               businessStatus={item.status}
